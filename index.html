@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SRK's Word Quest: The Ultimate Challenge</title>
+    <style>
+     body {
+            background: linear-gradient(
+                -45deg,
+                #ffffff,
+                #ffe4e9,
+                #fcc8e2,
+                #f6baed,
+                #efb0ff,
+                #d3a2ff,
+                #8eb8ff,
+                #91efff,
+                #d5f9ff
+            );
+            background-size: 400% 400%;
+            animation: gradient 9s ease infinite;
+            height: 100vh;
+            margin: 0;
+            font-family: 'Arial', sans-serif;
+            text-align: center;
+            padding: 50px;
+        }
+
+        @keyframes gradient {
+            0% {
+                background-position: 0% 50%;
+            }
+            50% {
+                background-position: 100% 50%;
+            }
+            100% {
+                background-position: 0% 50%;
+            }
+        }
+
+        h1 {
+            color: #001a79;
+            font-family:cursive;
+            text-shadow: 2px 2px 4px rgba(205, 234, 18, 0.5);
+            margin-bottom: 30px;
+        }
+
+        .category, .word-display, .level {
+            font-size: 1.5em;
+            margin: 20px 0;
+        }
+
+        .letter-box {
+            font-size: 2em;
+            letter-spacing: 10px;
+            font-weight: bold;
+            color: #ba10b7;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
+        }
+
+        input[type="text"] {
+            padding: 10px;
+            font-size: 1.2em;
+            margin: 20px 10px;
+            border-radius: 5px;
+            border: 2px solid #09a25b;
+            background: rgba(255, 255, 255, 0.8);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        button {
+            padding: 10px 20px;
+            font-size: 1em;
+            background: linear-gradient(135deg, #08a74a, #004d40);
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+            transition: background 0.3s ease, transform 0.2s ease;
+        }
+
+        button:hover {
+            background: linear-gradient(135deg, #08a74a, #004d40);
+            transform: scale(1.05);
+        }
+
+        .message {
+            margin: 20px;
+            font-size: 1.3em;
+        }
+
+        .correct {
+            color: #000000;
+        }
+
+        .wrong {
+            color: #d32f2f;
+        }
+
+        .attempts-left {
+            color: #06115b;
+            font-weight: bold;
+        }
+
+        .category-selection {
+            margin: 20px;
+            background: rgba(255, 255, 255, 0.8);
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+        }
+
+        .congrats-message, .game-over-section p {
+            font-size: 2em;
+            color: #0910f3;
+            animation: bounce 1s infinite alternate;
+            margin-top: 50px;
+        }
+
+        @keyframes bounce {
+            0% { transform: translateY(0); }
+            100% { transform: translateY(-20px); }
+        }
+
+        #play-again, #try-again {
+            margin-top: 30px;
+            background: linear-gradient(135deg, #08a74a, #004d40);
+        }
+
+        .video {
+            display: block;
+            margin: 20px auto;
+            width: 200px;
+            height: 200px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+        }
+    </style>
+</head>
+<body>
+
+    <h1>SRK's Word Quest <br> The Ultimate Challenge</h1>
+    
+    <div id="category-selection" class="category-selection">
+        <p>Select a Category to Play Level 1:</p>
+        <select id="category-select">
+            <option value="Programming">Programming</option>
+            <option value="Animals">Animals</option>
+            <option value="Birds">Birds</option>
+            <option value="Cars">Cars</option>
+            <option value="Fruits">Fruits</option>
+            <option value="Countries">Countries</option>
+        </select>
+        <button onclick="startGame()">Start Game</button>
+    </div>
+
+    <div id="game-section" style="display:none;">
+        <p>Level: <span id="level" class="level">1</span></p>
+        <p>Category: <span id="category-name" class="category"></span></p>
+        <p>Guess the word: <span id="word-display" class="letter-box"></span></p>
+
+        <p>Attempts left: <span id="attempts-left" class="attempts-left">5</span></p>
+
+        <input type="text" id="letter-input" maxlength="1" placeholder="Enter a letter">
+        <button onclick="checkLetter()">Submit</button>
+
+        <div id="message" class="message"></div>
+
+       
+        <audio id="submit-sound" src="soundd.wav"></audio>
+
+    </div>
+
+    <div id="congrats-section" style="display:none;">
+        <p class="congrats-message">🎉 Great! You are a Spell Bee! 🎉</p>
+        <button id="play-again" onclick="restartGame()">Play Again</button>
+        
+        <video id="happy-video" class="video" autoplay loop muted style="display:none;">
+            <source src="happy.mp4" type="video/mp4">
+        </video>
+    </div>
+
+    <div id="game-over-section" style="display:none;">
+        <p class="congrats-message">🙁 Game Over! Better luck next time!</p>
+        <button id="try-again" onclick="restartGame()">Try Again</button>
+        
+        <video id="sad-video" class="video" autoplay loop muted style="display:none;">
+            <source src="sad.mp4" type="video/mp4">
+        </video>
+    </div>
+
+    <script>
+        const categories = {
+    Programming: [
+        "JAVA", "PYTHON", "JAVASCRIPT", "KOTLIN", "C++", "RUBY", "PHP", "PERL", "SQL", "HTML",
+        "CSS", "GO", "SWIFT", "R", "MATLAB", "DART", "TYPEScript", "COBOL", "ASSEMBLY", "HASKELL",
+        "LISP", "SAS", "F#", "SCALA", "Erlang", "ABAP", "Objective-C", "VBScript", "FORTRAN", "REXX"
+    ],
+    Animals: [
+        "ELEPHANT", "TIGER", "LION", "CROCODILE", "GIRAFFE", "KANGAROO", "DOLPHIN", "SHARK", "PENGUIN", "EAGLE",
+        "FALCON", "HEDGEHOG", "OTTER", "WHALE", "SEAL", "GORILLA", "CHEETAH", "LEOPARD", "RHINO", "HIPPOPOTAMUS",
+        "JAGUAR", "ZEBRA", "MONKEY", "BEAR", "PANDA", "KOALA", "SLOTH", "RACCOON", "WOLF", "FOX"
+    ],
+    Birds: [
+        "PARROT", "PEACOCK", "SPARROW", "EAGLE", "OWL", "FLAMINGO", "SWAN", "HUMMINGBIRD", "CANARY", "PENGUIN",
+        "VULTURE", "ALBATROSS", "KITE", "CROW", "RAVEN", "WOODPECKER", "DODO", "KINGFISHER", "HAWK", "GULL",
+        "TIT", "ROBIN", "NIGHTINGALE", "STARLING", "LOON", "DOVE", "PHEASANT", "QUAIL", "TURKEY", "OSTRICH"
+    ],
+    Cars: [
+        "TESLA", "TOYOTA", "FORD", "HONDA", "BMW", "MERCEDES", "AUDI", "CHEVROLET", "NISSAN", "VOLKSWAGEN",
+        "JAGUAR", "LAND ROVER", "PORSHE", "FERRARI", "LAMBORGHINI", "MITSUBISHI", "HYUNDAI", "KIA", "MAZDA", "SUBARU",
+        "VOLVO", "FIAT", "ALFA ROMEO", "ACURA", "INFINITI", "LINCOLN", "BUICK", "GMC", "CADILLAC", "SAAB"
+    ],
+    Fruits: [
+        "APPLE", "BANANA", "CHERRY", "MANGO", "GRAPE", "ORANGE", "STRAWBERRY", "BLUEBERRY", "BLACKBERRY", "PEACH",
+        "PLUM", "PINEAPPLE", "WATERMELON", "KIWI", "LEMON", "LIME", "MELON", "FIG", "DATES", "PAPAYA",
+        "AVOCADO", "GUAVA", "POMEGRANATE", "MANGOSTEEN", "DURIAN", "DRAGONFRUIT", "JACKFRUIT", "TANGERINE", "CANTALOUPE", "RASPERRY"
+    ],
+    Countries: [
+        "INDIA", "CANADA", "AUSTRALIA", "GERMANY", "FRANCE", "ITALY", "JAPAN", "CHINA", "BRAZIL", "RUSSIA",
+        "UNITED STATES", "MEXICO", "UNITED KINGDOM", "SOUTH AFRICA", "SPAIN", "PORTUGAL", "NIGERIA", "ARGENTINA", "SOUTH KOREA", "SAUDI ARABIA",
+        "UNITED ARAB EMIRATES", "INDONESIA", "MALAYSIA", "PHILIPPINES", "THAILAND", "VIETNAM", "PAKISTAN", "BANGLADESH", "NEW ZEALAND", "NORWAY", "SWEDEN"
+    ]
+};
+
+
+        const maxWrongGuesses = 5;
+        const maxLevels = 4;
+        let wrongGuesses = 0;
+        let selectedCategory = '';
+        let wordsInCategory = [];
+        let currentWord = '';
+        let displayWordArray = [];
+        let guessedLetters = [];
+        let currentLevel = 1;
+
+        function startGame() {
+            const categoryDropdown = document.getElementById('category-select');
+            selectedCategory = categoryDropdown.value;
+
+            wordsInCategory = [...categories[selectedCategory]];
+            loadNewWord();
+            
+            document.getElementById('category-selection').style.display = 'none';
+            document.getElementById('game-section').style.display = 'block';
+        }
+
+        function loadNewWord() {
+            const wordIndex = Math.floor(Math.random() * wordsInCategory.length);
+            currentWord = wordsInCategory.splice(wordIndex, 1)[0];
+            
+            wrongGuesses = 0;
+            guessedLetters = [];
+            displayWordArray = Array(currentWord.length).fill('_');
+            
+            document.getElementById('category-name').textContent = selectedCategory;
+            document.getElementById('word-display').textContent = displayWordArray.join(' ');
+            document.getElementById('attempts-left').textContent = maxWrongGuesses;
+            document.getElementById('level').textContent = currentLevel;
+            document.getElementById('message').textContent = '';
+            document.getElementById('letter-input').disabled = false;
+        }
+
+        function checkLetter() {
+            const input = document.getElementById('letter-input').value.toUpperCase();
+            document.getElementById('letter-input').value = ''; 
+
+           
+            const submitSound = document.getElementById('submit-sound');
+            submitSound.play();
+
+            if (input === '' || guessedLetters.includes(input)) {
+                document.getElementById('message').textContent = guessedLetters.includes(input) ? 
+                    'You have already entered this letter. Try another one!' : 'Invalid letter. Try again!';
+                document.getElementById('message').className = 'message wrong';
+                return;
+            }
+
+            guessedLetters.push(input);
+            let correctGuess = false;
+
+            for (let i = 0; i < currentWord.length; i++) {
+                if (currentWord[i] === input) {
+                    displayWordArray[i] = currentWord[i];
+                    correctGuess = true;
+                }
+            }
+
+            document.getElementById('word-display').textContent = displayWordArray.join(' ');
+
+            if (correctGuess) {
+                document.getElementById('message').textContent = 'Guess is correct! Proceed to the next character.';
+                document.getElementById('message').className = 'message correct';
+
+                if (displayWordArray.join('') === currentWord) {
+                    currentLevel++;
+                    if (currentLevel > maxLevels) {
+                        endGame(true);
+                    } else {
+                        loadNewWord();
+                    }
+                }
+            } else {
+                wrongGuesses++;
+                document.getElementById('attempts-left').textContent = maxWrongGuesses - wrongGuesses;
+
+                document.getElementById('message').textContent = 'Wrong guess! Try again.';
+                document.getElementById('message').className = 'message wrong';
+
+                if (wrongGuesses >= maxWrongGuesses) {
+                    endGame(false);
+                }
+            }
+        }
+
+        function endGame(won) {
+            document.getElementById('letter-input').disabled = true;
+            document.getElementById('game-section').style.display = 'none';
+
+            if (won) {
+                document.getElementById('congrats-section').style.display = 'block';
+                document.getElementById('happy-video').style.display = 'block'; 
+                document.getElementById('happy-video').play();
+            } else {
+                document.getElementById('game-over-section').style.display = 'block';
+                document.getElementById('sad-video').style.display = 'block';
+                document.getElementById('sad-video').play();
+            }
+        }
+
+        function restartGame() {
+            currentLevel = 1;
+            document.getElementById('congrats-section').style.display = 'none';
+            document.getElementById('game-over-section').style.display = 'none';
+            startGame();
+        }
+    </script>
+
+</body>
+</html>
